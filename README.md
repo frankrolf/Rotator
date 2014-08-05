@@ -1,8 +1,18 @@
-SuperRotator
-=====
+# SuperRotator
+Robofont extension for rotating selected outlines or whole glyphs.  
 
-<img src="SuperRotator.png" width="150" height="290" alt="SuperRotator" />
+<img src="SuperRotator.png" width="210" height="304" alt="SuperRotator" />
 
-Rotates selected outlines or whole glyphs.  
-The rotation center can be set by entering the coordinate values, or by just clicking anywhere inside the drawing canvas.
 
+The rotation center can be set by entering the coordinate values, or by activating “capture clicks” and then clicking anywhere on the canvas.  
+The rotation is previewed in the glyph window; and will update for new values.
+
+## MIT License
+
+Copyright (C) 2014 Frank Grießhammer
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

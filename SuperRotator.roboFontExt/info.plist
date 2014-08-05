@@ -12,26 +12,26 @@
 			<key>shortKey</key>
 			<string></string>
 		</dict>
-	</array>	
+	</array>
 	<key>developer</key>
 	<string>Frank Griesshammer</string>
 	<key>developerURL</key>
-	<string>http://www.frgr.de</string>
+	<string>www.frgr.de</string>
 	<key>html</key>
 	<false/>
 	<key>launchAtStartUp</key>
 	<integer>0</integer>
 	<key>mainScript</key>
-	<string>SuperRotator.py</string>
+	<string></string>
 	<key>name</key>
 	<string>SuperRotator</string>
 	<key>requiresVersionMajor</key>
 	<string>1</string>
 	<key>requiresVersionMinor</key>
-	<string>2</string>
+	<string>0</string>
 	<key>timeStamp</key>
-	<real>1383904089</real>
+	<real>1407231079.298219</real>
 	<key>version</key>
-	<string>1.0</string>
+	<string>0.4</string>
 </dict>
 </plist>
