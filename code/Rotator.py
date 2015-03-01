@@ -1,7 +1,7 @@
 # coding: utf-8
 
 '''
-SuperRotator.
+ЯOTATOR.
 
 Robofont extension for joyful rotation of glyphs and outlines.
 ✱ ✲ ✳ ✴ ✵ ✶ ✷ ✸ ✹ ✺ ✻ ✼ ✽ ✾ ✿ ❀ ❁ ❂ ❃ ❄ ❅ ❆ ❇ ❈ ❉ ❊ ❋ 
@@ -30,15 +30,14 @@ from mojo.events import BaseEventTool
 from mojo.glyphPreview import GlyphPreview
 from mojo.UI import UpdateCurrentGlyphView
 from fontTools.pens.cocoaPen import CocoaPen
-from lib.fontObjects import internalFontClasses
 from mojo.extensions import getExtensionDefault, setExtensionDefault, getExtensionDefaultColor, setExtensionDefaultColor
 
-rotatorDefaults = 'de.frgr.SuperRotator'
+rotatorDefaults = 'de.frgr.Rotator'
 
 
-class SuperRotator(BaseWindowController):
+class Rotator(BaseWindowController):
 
-    _title = 'SuperRotator'
+    _title = 'Rotator'
     _width = 180
     _frame = 8
     _height = 274
@@ -63,8 +62,9 @@ class SuperRotator(BaseWindowController):
     angle = 360.0/steps
 
 
-    def __init__(self):
-        self.glyph = CurrentGlyph()
+    def __init__(self, glyph):
+        # self.glyph = CurrentGlyph()
+        self.glyph = glyph
 
         self.w = FloatingWindow(
                 (self._width+2*self._frame, self._height),
@@ -164,7 +164,7 @@ class SuperRotator(BaseWindowController):
         self.w.color.get().set()
         outline.draw(pen)
         # pen.path.fill()
-        pen.path.setLineWidth_(1)
+        pen.path.setLineWidth_(0.5)
         pen.path.stroke()
 
 
@@ -250,7 +250,7 @@ class SuperRotator(BaseWindowController):
 
 
     def rotateCallback(self, sender):
-        self.glyph.prepareUndo('SuperRotator')
+        self.glyph.prepareUndo('Rotator')
         rotatedGlyph = self.getRotatedGlyph()
 
         self.glyph.appendGlyph(rotatedGlyph)        
@@ -299,4 +299,9 @@ class SuperRotator(BaseWindowController):
         return rotationResultGlyph
 
 
-OpenWindow(SuperRotator)
+
+g = CurrentGlyph()
+if g:
+    OpenWindow(Rotator, g)
+else:
+    print 'Please open a glyph window.'

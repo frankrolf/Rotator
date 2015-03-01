@@ -6,9 +6,9 @@
 	<array>
 		<dict>
 			<key>path</key>
-			<string>SuperRotator.py</string>
+			<string>Rotator.py</string>
 			<key>preferredName</key>
-			<string>SuperRotator</string>
+			<string>Rotator</string>
 			<key>shortKey</key>
 			<string></string>
 		</dict>
@@ -24,13 +24,9 @@
 	<key>mainScript</key>
 	<string></string>
 	<key>name</key>
-	<string>SuperRotator</string>
-	<key>requiresVersionMajor</key>
-	<string>1</string>
-	<key>requiresVersionMinor</key>
-	<string>0</string>
+	<string>Rotator</string>
 	<key>timeStamp</key>
-	<real>1407231079.298219</real>
+	<real>1407517353.4519081</real>
 	<key>version</key>
 	<string>0.4</string>
 </dict>

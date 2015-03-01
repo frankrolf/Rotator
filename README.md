@@ -1,7 +1,7 @@
-# SuperRotator
+# Rotator
 Robofont extension for rotating selected outlines or whole glyphs.  
 
-<img src="SuperRotator.png" width="210" height="304" alt="SuperRotator" />
+<img src="Rotator.png" width="210" height="304" alt="Rotator" />
 
 
 The rotation center can be set by entering the coordinate values, or by activating “capture clicks” and then clicking anywhere on the canvas.  
