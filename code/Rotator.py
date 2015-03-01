@@ -3,19 +3,21 @@
 '''
 ЯOTATOR.
 
-Robofont extension for joyful rotation of glyphs and outlines.
+Robofont extension for joyful rotation of glyphs and/or selected outlines.
 ✱ ✲ ✳ ✴ ✵ ✶ ✷ ✸ ✹ ✺ ✻ ✼ ✽ ✾ ✿ ❀ ❁ ❂ ❃ ❄ ❅ ❆ ❇ ❈ ❉ ❊ ❋ 
 Frank Grießhammer – www.frgr.de
 
 Versions:
-0.0 2012        FL version.
-0.1 2013-02-28  Update with plist for storing preferences.
-0.2 2013-03     Re-write for Robofont.
+0.5 2015-03-01  Make text boxes better with digesting (ignoring) malicious input.
+0.4 2014-07-30  Update UI, get rid of plist, add preview glyph,
+                add rounding for resulting glyph.
 0.3 2013-11-08  Add click capture for setting rotation center.
-0.4 2014-07-30  Update UI, get rid of plist, add preview glyph, add rounding possibility for resulting glyph.
+0.2 2013-03     Re-write for Robofont.
+0.1 2013-02-28  Update with plist for storing preferences.
+0.0 2012        FL version.
 
 
-ToDo:
+To Do:
 - Add NSFormatter to text boxes to only allow numbers for text entry.
 
 '''
@@ -88,7 +90,7 @@ class Rotator(BaseWindowController):
 
         self.w.xValue_label = TextBox(
                 (self._column_0, textBoxY, self._columnWidth, self._lineHeight),
-                'X', alignment='right')
+                'x', alignment='right')
         self.w.xValue_text = EditText(
                 (self._column_1, textBoxY-2, self._columnWidth, self._lineHeight),
                 self.xValue, 
@@ -97,7 +99,7 @@ class Rotator(BaseWindowController):
 
         self.w.yValue_label = TextBox(
                 (self._column_0, textBoxY, self._columnWidth, self._lineHeight),
-                'Y', alignment='right')
+                'y', alignment='right')
         self.w.yValue_text = EditText(
                 (self._column_1, textBoxY-2, self._columnWidth, self._lineHeight),
                 self.yValue, 
@@ -169,12 +171,24 @@ class Rotator(BaseWindowController):
 
 
     def xCallback(self, sender):
-        self.xValue = int(sender.get())
+        xValue = sender.get()
+        try:
+            self.xValue = int(xValue)
+        except ValueError:
+            xValue = self.xValue
+            self.w.xValue_text.set(xValue)
+
         UpdateCurrentGlyphView()
 
 
     def yCallback(self, sender):
-        self.yValue = int(sender.get())
+        yValue = sender.get()
+        try:
+            self.yValue = int(yValue)
+        except ValueError:
+            yValue = self.yValue
+            self.w.yValue_text.set(yValue)
+
         UpdateCurrentGlyphView()
 
 
@@ -189,8 +203,13 @@ class Rotator(BaseWindowController):
 
 
     def angleCallback(self, sender):
-        stepValue = float(sender.get())
-        stepValue = int(round(stepValue))
+        try:
+            stepValue = float(sender.get())
+            stepValue = int(round(stepValue))
+        except ValueError:
+            stepValue = self.steps
+            self.w.steps_text.set(self.steps)
+
         self.steps = stepValue
 
         if abs(stepValue) < 2:
@@ -211,7 +230,6 @@ class Rotator(BaseWindowController):
         if angleResultString.endswith('.00'):
             angleResultString = angleResultString[0:-3]
         return angleResultString
-
 
 
     def colorCallback(self, sender):
