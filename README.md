@@ -1,6 +1,4 @@
 # Rotator
-Robofont extension for rotating selected outlines or whole glyphs.  
-
 <img src="Rotator-Screenshot.png" width="640" height="440" alt="Rotators gonna Rotate" />
 
 The rotation center can be set by entering the coordinate values, or by activating “capture clicks” and then clicking anywhere on the canvas.  

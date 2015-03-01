@@ -29,5 +29,8 @@
 	<real>1425233548.621489</real>
 	<key>version</key>
 	<string>0.5</string>
-</dict>
+	<key>repository</key>
+	<string>frankrolf/Rotator</string>
+	<key>extensionPath</key>
+	<string>Rotator.roboFontExt</string></dict>
 </plist>
