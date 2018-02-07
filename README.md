@@ -6,13 +6,17 @@ A preview of the rotation is shown in the glyph window; and will dynamically upd
 
 
 ## Versions
-    0.5 2015-03-01  Make text boxes better with digesting (ignoring) malicious input.
-    0.4 2014-07-30  Update UI, get rid of plist files, add preview glyph,
-                    add optional rounding for resulting glyph.
-    0.3 2013-11-08  Add click capture for setting rotation center.
-    0.2 2013-03     Re-write for Robofont.
-    0.1 2013-02-28  Update with plist for storing preferences.
-    0.0 2012        FL version.
+    0.5.1 2018-02-07  Python 3 support and some common sense modifications.
+                      (Why wouldn’t the window be closable in a normal way?
+                      That was silly.)
+    0.5   2015-03-01  Make text boxes better with digesting (ignoring)
+                      malicious input.
+    0.4   2014-07-30  Update UI, get rid of plist files, add preview glyph,
+                      add optional rounding for resulting glyph.
+    0.3   2013-11-08  Add click capture for setting rotation center.
+    0.2   2013-03     Re-write for Robofont.
+    0.1   2013-02-28  Update with plist for storing preferences.
+    0.0   2012        FL version.
 
 
 ## Background

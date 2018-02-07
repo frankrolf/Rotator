@@ -3,12 +3,16 @@
 '''
 ЯOTATOR.
 
-Robofont extension for joyful rotation of whole glyphs or selected outlines.
-✱ ✲ ✳ ✴ ✵ ✶ ✷ ✸ ✹ ✺ ✻ ✼ ✽ ✾ ✿ ❀ ❁ ❂ ❃ ❄ ❅ ❆ ❇ ❈ ❉ ❊ ❋
+Robofont extension for joyful rotation
+of whole glyphs or selected outlines.
+✱ ✲ ✳ ✴ ✵ ✶ ✷ ✸ ✹ ✺ ✻ ✼ ✽ ✾ ✿ ❀ ❁ ❂ ❃
+ ❄ ❅ ❆ ❇ ❈ ❉ ❊ ❋ ✱ ✲ ✳ ✴ ✵ ✶ ✷ ✸ ✹ ✺
 Frank Grießhammer – www.frgr.de
 
 Versions:
-0.5.1 2018-02-07  Python 3 support
+0.5.1 2018-02-07  Python 3 support and some common sense modifications.
+                  (Why wouldn’t the window be closable in a normal way?
+                  That was silly.)
 0.5   2015-03-01  Make text boxes better with digesting (ignoring)
                   malicious input.
 0.4   2014-07-30  Update UI, get rid of plist files, add preview glyph,
@@ -42,7 +46,7 @@ class Rotator(BaseWindowController):
     _title = 'Rotator'
     _width = 180
     _frame = 8
-    _height = 274
+    _height = 249
     _row = 24
     _padding = 16
     _gutter = 8
@@ -74,7 +78,7 @@ class Rotator(BaseWindowController):
         self.glyph = glyph
         self.w = FloatingWindow(
             (self._width + 2 * self._frame, self._height),
-            self._title, textured=True, closable=False)
+            self._title)
 
         # ----------
         # text boxes
@@ -148,11 +152,6 @@ class Rotator(BaseWindowController):
             callback=self.colorCallback)
 
         textBoxY += (self._row)
-
-        self.w.buttonClose = Button(
-            (self._column_0, -55, -self._gutter, self._lineHeight),
-            'Close',
-            callback=self.closeCallback)
 
         self.w.buttonRotate = Button(
             (self._column_0, -30, -self._gutter, self._lineHeight),
@@ -234,13 +233,6 @@ class Rotator(BaseWindowController):
         setExtensionDefaultColor(
             '%s.%s' % (rotatorDefaults, 'color'), sender.get())
         UpdateCurrentGlyphView()
-
-    def closeCallback(self, sender):
-        removeObserver(self, 'mouseUp')
-        removeObserver(self, 'drawBackground')
-        UpdateCurrentGlyphView()
-        self.saveDefaults()
-        self.w.close()
 
     def windowCloseCallback(self, sender):
         removeObserver(self, 'mouseUp')
