@@ -1,5 +1,5 @@
 # Rotator
-<img src="Rotator-Screenshot.png" width="640" height="440" alt="Rotators gonna Rotate" />
+<img src="rotator.png" width="640" height="440" alt="Rotators gonna Rotate" />
 
 The rotation center can be set by entering the coordinate values, or by activating “capture clicks” and then clicking anywhere on the canvas.  
 A preview of the rotation is shown in the glyph window; and will dynamically update when new values are given, or other outlines are selected. 
