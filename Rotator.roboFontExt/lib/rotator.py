@@ -10,23 +10,26 @@ of whole glyphs or selected outlines.
 Frank Grießhammer – www.frgr.de
 
 Versions:
-0.5.1 2018-02-07  Python 3 support and some common sense modifications.
+0.5.2 2019/10/17  Limit imports
+0.5.1 2018/02/07  Python 3 support and some common sense modifications.
                   (Why wouldn’t the window be closable in a normal way?
                   That was silly.)
-0.5   2015-03-01  Make text boxes better with digesting (ignoring)
+0.5   2015/03/01  Make text boxes better with digesting (ignoring)
                   malicious input.
-0.4   2014-07-30  Update UI, get rid of plist files, add preview glyph,
+0.4   2014/07/30  Update UI, get rid of plist files, add preview glyph,
                   add optional rounding for resulting glyph.
-0.3   2013-11-08  Add click capture for setting rotation center.
-0.2   2013-03     Re-write for Robofont.
-0.1   2013-02-28  Update with plist for storing preferences.
+0.3   2013/11/08  Add click capture for setting rotation center.
+0.2   2013/03     Re-write for Robofont.
+0.1   2013/02/28  Update with plist for storing preferences.
 0.0   2012        FL version.
 
 '''
 
 
-from vanilla import *
-from AppKit import *
+from vanilla import (
+    Button, CheckBox, ColorWell,
+    EditText, FloatingWindow, HorizontalLine, TextBox)
+from AppKit import NSColor
 
 from defconAppKit.windows.baseWindow import BaseWindowController
 from mojo.events import addObserver, removeObserver
@@ -34,9 +37,9 @@ from mojo.events import addObserver, removeObserver
 # from mojo.glyphPreview import GlyphPreview
 from mojo.UI import UpdateCurrentGlyphView
 from fontTools.pens.cocoaPen import CocoaPen
-from mojo.extensions import \
-    getExtensionDefault, setExtensionDefault, \
-    getExtensionDefaultColor, setExtensionDefaultColor
+from mojo.extensions import (
+    getExtensionDefault, setExtensionDefault,
+    getExtensionDefaultColor, setExtensionDefaultColor)
 
 rotatorDefaults = 'de.frgr.Rotator'
 
@@ -55,11 +58,11 @@ class Rotator(BaseWindowController):
         0.0, 0.5, 1.0, .8)
 
     _columns = 3
-    _columnWidth = (_width - ((_columns - 1) * _gutter)) / _columns
-    _column_0 = _frame
-    _column_1 = _frame + _columnWidth + _gutter
-    _column_2 = _frame + 2 * _columnWidth + 2 * _gutter
-    _column_3 = _frame + 3 * _columnWidth + 3 * _gutter
+    _col_width = (_width - ((_columns - 1) * _gutter)) / _columns
+    _col_0 = _frame
+    _col_1 = _frame + _col_width + _gutter
+    _col_2 = _frame + 2 * _col_width + 2 * _gutter
+    _col_3 = _frame + 3 * _col_width + 3 * _gutter
 
     xValue = getExtensionDefault(
         '%s.%s' % (rotatorDefaults, 'x'), 0)
@@ -87,38 +90,38 @@ class Rotator(BaseWindowController):
         textBoxY = self._padding
 
         self.w.steps_label = TextBox(
-            (self._column_0, textBoxY, self._columnWidth, self._lineHeight),
+            (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'Steps', alignment='right')
         self.w.steps_text = EditText(
-            (self._column_1, textBoxY - 2, self._columnWidth, self._lineHeight),
+            (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
             self.steps,
             callback=self.angleCallback,
             continuous=True)
         textBoxY += (self._row)
 
         self.w.xValue_label = TextBox(
-            (self._column_0, textBoxY, self._columnWidth, self._lineHeight),
+            (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'x', alignment='right')
         self.w.xValue_text = EditText(
-            (self._column_1, textBoxY - 2, self._columnWidth, self._lineHeight),
+            (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
             self.xValue,
             callback=self.xCallback)
         textBoxY += (self._row)
 
         self.w.yValue_label = TextBox(
-            (self._column_0, textBoxY, self._columnWidth, self._lineHeight),
+            (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'y', alignment='right')
         self.w.yValue_text = EditText(
-            (self._column_1, textBoxY - 2, self._columnWidth, self._lineHeight),
+            (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
             self.yValue,
             callback=self.yCallback)
         textBoxY += (self._row)
 
         self.w.angle_label = TextBox(
-            (self._column_0, textBoxY, self._columnWidth, self._lineHeight),
+            (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'Angle', alignment='right')
         self.w.angleResult = TextBox(
-            (self._column_1, textBoxY, self._columnWidth, self._lineHeight),
+            (self._col_1, textBoxY, self._col_width, self._lineHeight),
             u'%s°' % self.niceAngleString(self.angle))
         textBoxY += (self._row)
 
@@ -128,14 +131,14 @@ class Rotator(BaseWindowController):
         textBoxY += (self._row * .25)
 
         self.w.capture_checkbox = CheckBox(
-            (self._column_1 - 25, textBoxY, -self._gutter, self._lineHeight),
+            (self._col_1 - 25, textBoxY, -self._gutter, self._lineHeight),
             'Capture Clicks',
             value=self.capture,
             callback=self.captureCallback)
         textBoxY += (self._row)
 
         self.w.rounding_checkbox = CheckBox(
-            (self._column_1 - 25, textBoxY, -self._gutter, self._lineHeight),
+            (self._col_1 - 25, textBoxY, -self._gutter, self._lineHeight),
             'Round Result',
             value=self.rounding,
             callback=self.roundingCallback)
@@ -146,7 +149,7 @@ class Rotator(BaseWindowController):
         # -------
 
         self.w.color = ColorWell(
-            (self._column_0, textBoxY, -self._gutter, 2 * self._lineHeight),
+            (self._col_0, textBoxY, -self._gutter, 2 * self._lineHeight),
             color=getExtensionDefaultColor(
                 '%s.%s' % (rotatorDefaults, 'color'), self._color),
             callback=self.colorCallback)
@@ -154,7 +157,7 @@ class Rotator(BaseWindowController):
         textBoxY += (self._row)
 
         self.w.buttonRotate = Button(
-            (self._column_0, -30, -self._gutter, self._lineHeight),
+            (self._col_0, -30, -self._gutter, self._lineHeight),
             'Rotate',
             callback=self.rotateCallback)
 
@@ -169,7 +172,6 @@ class Rotator(BaseWindowController):
         pen = CocoaPen(None)
         self.w.color.get().set()
         outline.draw(pen)
-        # pen.path.fill()
         pen.path.setLineWidth_(0.5)
         pen.path.stroke()
 
@@ -276,9 +278,9 @@ class Rotator(BaseWindowController):
         angle = self.angle
 
         center = (x, y)
-        rotationResultGlyph = RGlyph()
-        rotationStepGlyph = RGlyph()
-        pen = rotationStepGlyph.getPointPen()
+        rotation_result_glyph = RGlyph()
+        rotation_step_glyph = RGlyph()
+        pen = rotation_step_glyph.getPointPen()
 
         contourList = []
         for idx, contour in enumerate(self.glyph):
@@ -301,13 +303,13 @@ class Rotator(BaseWindowController):
             angle = 90
 
         for i in range(stepCount):
-            rotationStepGlyph.rotate(angle, center)
-            rotationResultGlyph.appendGlyph(rotationStepGlyph)
+            rotation_step_glyph.rotate(angle, center)
+            rotation_result_glyph.appendGlyph(rotation_step_glyph)
 
         if self.rounding:
-            rotationResultGlyph.round()
+            rotation_result_glyph.round()
 
-        return rotationResultGlyph
+        return rotation_result_glyph
 
 
 g = CurrentGlyph()
