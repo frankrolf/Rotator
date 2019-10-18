@@ -6,8 +6,9 @@ A preview of the rotation is shown in the glyph window; and will dynamically upd
 
 
 ## Versions
+    0.5.2 2019-10-17  Limit imports
     0.5.1 2018-02-07  Python 3 support and some common sense modifications.
-                      (Why wouldn’t the window be closable in a normal way?
+                      (Why wouldn’t the window be closeable in a normal way?
                       That was silly.)
     0.5   2015-03-01  Make text boxes better with digesting (ignoring)
                       malicious input.
