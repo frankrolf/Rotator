@@ -48,9 +48,8 @@ class Rotator(BaseWindowController):
         '%s.%s' % (rotatorDefaults, 'round'), False)
     angle = 360.0 / steps
 
-    def __init__(self, glyph):
+    def __init__(self):
 
-        self.glyph = glyph
         self.w = FloatingWindow(
             (self._width + 2 * self._frame, self._height),
             self._title)
@@ -234,15 +233,17 @@ class Rotator(BaseWindowController):
             '%s.%s' % (rotatorDefaults, 'round'), self.rounding)
 
     def rotateCallback(self, sender):
-        self.glyph.prepareUndo('Rotator')
+        glyph = CurrentGlyph()
+        glyph.prepareUndo('Rotator')
         rotatedGlyph = self.getRotatedGlyph()
 
-        self.glyph.appendGlyph(rotatedGlyph)
-        self.glyph.performUndo()
+        glyph.appendGlyph(rotatedGlyph)
+        glyph.performUndo()
         self.saveDefaults()
-        self.glyph.update()
+        glyph.update()
 
     def getRotatedGlyph(self):
+        glyph = CurrentGlyph()
         x = int(self.w.xValue_text.get())
         y = int(self.w.yValue_text.get())
 
@@ -255,17 +256,17 @@ class Rotator(BaseWindowController):
         pen = rotation_step_glyph.getPointPen()
 
         contourList = []
-        for idx, contour in enumerate(self.glyph):
+        for idx, contour in enumerate(glyph):
             if contour.selected:
                 contourList.append(idx)
 
         # if nothing is selected, the whole glyph will be rotated.
         if len(contourList) == 0:
-            for idx, contour in enumerate(self.glyph):
+            for idx, contour in enumerate(glyph):
                 contourList.append(idx)
 
         for contour in contourList:
-            self.glyph[contour].drawPoints(pen)
+            glyph[contour].drawPoints(pen)
 
         # don't draw the original shape again
         stepCount = steps - 1
@@ -286,6 +287,6 @@ class Rotator(BaseWindowController):
 
 g = CurrentGlyph()
 if g:
-    OpenWindow(Rotator, g)
+    OpenWindow(Rotator)
 else:
     print('Please open a glyph window.')

@@ -6,6 +6,8 @@ A preview of the rotation is shown in the glyph window; and will dynamically upd
 
 
 ## Versions
+    0.5.3 2019-10-18  Do not limit to a single glyph 
+                      (which means the window can stay open while toggling through fonts)
     0.5.2 2019-10-17  Limit imports
     0.5.1 2018-02-07  Python 3 support and some common sense modifications.
                       (Why wouldn’t the window be closeable in a normal way?
