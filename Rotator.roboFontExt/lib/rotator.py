@@ -5,8 +5,6 @@ from AppKit import NSColor
 
 from defconAppKit.windows.baseWindow import BaseWindowController
 from mojo.events import addObserver, removeObserver
-# from mojo.events import BaseEventTool
-# from mojo.glyphPreview import GlyphPreview
 from mojo.UI import UpdateCurrentGlyphView
 from fontTools.pens.cocoaPen import CocoaPen
 from mojo.extensions import (
@@ -277,7 +275,7 @@ class Rotator(BaseWindowController):
             angle = 90
 
         for i in range(stepCount):
-            rotation_step_glyph.rotate(angle, center)
+            rotation_step_glyph.rotateBy(angle, center)
             rotation_result_glyph.appendGlyph(rotation_step_glyph)
 
         if self.rounding:
