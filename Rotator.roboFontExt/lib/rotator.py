@@ -133,7 +133,8 @@ class Rotator(BaseWindowController):
             callback=self.rotateCallback)
 
         self.setUpBaseWindowBehavior()
-        addObserver(self, 'mouseUp', 'mouseUp')
+        addObserver(self, 'updateOrigin', 'mouseDragged')
+        addObserver(self, 'updateOrigin', 'mouseUp')
         addObserver(self, 'drawRotationPreview', 'drawBackground')
         self.w.setDefaultButton(self.w.buttonRotate)
         self.w.open()
@@ -213,7 +214,7 @@ class Rotator(BaseWindowController):
         UpdateCurrentGlyphView()
         self.saveDefaults()
 
-    def mouseUp(self, info):
+    def updateOrigin(self, info):
         if self.capture:
             self.xValue, self.yValue = int(
                 round(info['point'].x)), int(round(info['point'].y))
