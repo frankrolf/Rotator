@@ -134,6 +134,7 @@ class Rotator(BaseWindowController):
         addObserver(self, 'updateOrigin', 'mouseDragged')
         addObserver(self, 'updateOrigin', 'mouseUp')
         addObserver(self, 'drawRotationPreview', 'drawBackground')
+        addObserver(self, 'drawSolidPreview', 'drawPreview')
         self.w.setDefaultButton(self.w.buttonRotate)
         self.w.open()
 
@@ -144,6 +145,14 @@ class Rotator(BaseWindowController):
         outline.draw(pen)
         pen.path.setLineWidth_(0.5)
         pen.path.stroke()
+
+    def drawSolidPreview(self, info):
+        outline = self.getRotatedGlyph()
+        pen = CocoaPen(None)
+        outline.draw(pen)
+        fillColor = NSColor.blackColor()
+        fillColor.set()
+        pen.path.fill()
 
     def xCallback(self, sender):
         xValue = sender.get()
@@ -209,6 +218,7 @@ class Rotator(BaseWindowController):
     def windowCloseCallback(self, sender):
         removeObserver(self, 'mouseUp')
         removeObserver(self, 'drawBackground')
+        removeObserver(self, 'drawPreview')
         UpdateCurrentGlyphView()
         self.saveDefaults()
 
