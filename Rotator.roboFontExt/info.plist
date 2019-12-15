@@ -26,9 +26,9 @@
 	<key>name</key>
 	<string>Rotator</string>
 	<key>timeStamp</key>
-	<real>1576106946.01932</real>
+	<real>1576452526.546603</real>
 	<key>version</key>
-	<string>0.5.4</string>
+	<string>0.6.0</string>
 	<key>repository</key>
 	<string>frankrolf/Rotator</string>
 	<key>extensionPath</key>
