@@ -101,7 +101,7 @@ class Rotator(BaseWindowController):
 
         self.w.capture_checkbox = CheckBox(
             (self._col_1 - 25, textBoxY, -self._gutter, self._lineHeight),
-            'Capture Clicks',
+            'Capture Drag',
             value=self.capture,
             callback=self.captureCallback)
         textBoxY += (self._row)
@@ -122,7 +122,6 @@ class Rotator(BaseWindowController):
             color=getExtensionDefaultColor(
                 '%s.%s' % (rotatorDefaults, 'color'), self._color),
             callback=self.colorCallback)
-
         textBoxY += (self._row)
 
         self.w.buttonRotate = Button(
@@ -132,13 +131,13 @@ class Rotator(BaseWindowController):
 
         self.setUpBaseWindowBehavior()
         addObserver(self, 'updateOrigin', 'mouseDragged')
-        addObserver(self, 'updateOrigin', 'mouseUp')
         addObserver(self, 'drawRotationPreview', 'drawBackground')
         addObserver(self, 'drawSolidPreview', 'drawPreview')
         self.w.setDefaultButton(self.w.buttonRotate)
         self.w.open()
 
     def drawRotationPreview(self, info):
+        # draw preview glyph
         outline = self.getRotatedGlyph()
         pen = CocoaPen(None)
         self.w.color.get().set()
@@ -146,13 +145,29 @@ class Rotator(BaseWindowController):
         pen.path.setLineWidth_(0.5)
         pen.path.stroke()
 
+        # draw crosshair
+        ch_pen = CocoaPen(None)
+        center_x = self.xValue
+        center_y = self.yValue
+        strokeColor = NSColor.redColor()
+        strokeColor.set()
+        ch_pen.moveTo((center_x - 10, center_y))
+        ch_pen.lineTo((center_x + 10, center_y))
+        ch_pen.endPath()
+        ch_pen.moveTo((center_x, center_y - 10))
+        ch_pen.lineTo((center_x, center_y + 10))
+        ch_pen.endPath()
+        ch_pen.path.setLineWidth_(0.5)
+        ch_pen.path.stroke()
+
+
     def drawSolidPreview(self, info):
         outline = self.getRotatedGlyph()
         pen = CocoaPen(None)
         outline.draw(pen)
-        default_preview_color = getDefault('glyphViewPreviewFillColor')
+        defaultPreviewColor = getDefault('glyphViewPreviewFillColor')
         fillColor = NSColor.colorWithCalibratedRed_green_blue_alpha_(
-            *default_preview_color)
+            *defaultPreviewColor)
         fillColor.set()
         pen.path.fill()
 
