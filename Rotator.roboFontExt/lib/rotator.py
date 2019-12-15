@@ -5,7 +5,7 @@ from AppKit import NSColor
 
 from defconAppKit.windows.baseWindow import BaseWindowController
 from mojo.events import addObserver, removeObserver
-from mojo.UI import UpdateCurrentGlyphView
+from mojo.UI import getDefault, UpdateCurrentGlyphView
 from fontTools.pens.cocoaPen import CocoaPen
 from mojo.extensions import (
     getExtensionDefault, setExtensionDefault,
@@ -150,7 +150,9 @@ class Rotator(BaseWindowController):
         outline = self.getRotatedGlyph()
         pen = CocoaPen(None)
         outline.draw(pen)
-        fillColor = NSColor.blackColor()
+        default_preview_color = getDefault('glyphViewPreviewFillColor')
+        fillColor = NSColor.colorWithCalibratedRed_green_blue_alpha_(
+            *default_preview_color)
         fillColor.set()
         pen.path.fill()
 
