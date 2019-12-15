@@ -40,8 +40,8 @@ class Rotator(BaseWindowController):
         '%s.%s' % (rotatorDefaults, 'y'), 0)
     steps = getExtensionDefault(
         '%s.%s' % (rotatorDefaults, 'steps'), 12)
-    capture = getExtensionDefault(
-        '%s.%s' % (rotatorDefaults, 'capture'), False)
+    lock = getExtensionDefault(
+        '%s.%s' % (rotatorDefaults, 'lock'), False)
     rounding = getExtensionDefault(
         '%s.%s' % (rotatorDefaults, 'round'), False)
     angle = 360.0 / steps
@@ -99,11 +99,11 @@ class Rotator(BaseWindowController):
             (self._gutter, textBoxY, -self._gutter, 0.5))
         textBoxY += (self._row * .25)
 
-        self.w.capture_checkbox = CheckBox(
+        self.w.lock_checkbox = CheckBox(
             (self._col_1 - 25, textBoxY, -self._gutter, self._lineHeight),
-            'Capture Drag',
-            value=self.capture,
-            callback=self.captureCallback)
+            'Lock Center',
+            value=self.lock,
+            callback=self.lockCallback)
         textBoxY += (self._row)
 
         self.w.rounding_checkbox = CheckBox(
@@ -191,8 +191,8 @@ class Rotator(BaseWindowController):
 
         UpdateCurrentGlyphView()
 
-    def captureCallback(self, sender):
-        self.capture = not self.capture
+    def lockCallback(self, sender):
+        self.lock = not self.lock
         self.saveDefaults()
 
     def roundingCallback(self, sender):
@@ -240,7 +240,7 @@ class Rotator(BaseWindowController):
         self.saveDefaults()
 
     def updateOrigin(self, info):
-        if self.capture:
+        if not self.lock:
             self.xValue, self.yValue = int(
                 round(info['point'].x)), int(round(info['point'].y))
             self.w.xValue_text.set(self.xValue)
@@ -254,7 +254,7 @@ class Rotator(BaseWindowController):
         setExtensionDefault(
             '%s.%s' % (rotatorDefaults, 'steps'), self.steps)
         setExtensionDefault(
-            '%s.%s' % (rotatorDefaults, 'capture'), self.capture)
+            '%s.%s' % (rotatorDefaults, 'lock'), self.lock)
         setExtensionDefault(
             '%s.%s' % (rotatorDefaults, 'round'), self.rounding)
 
@@ -266,7 +266,7 @@ class Rotator(BaseWindowController):
         glyph.appendGlyph(rotatedGlyph)
         glyph.performUndo()
         self.saveDefaults()
-        glyph.update()
+        glyph.changed()
 
     def getRotatedGlyph(self):
         glyph = CurrentGlyph()
