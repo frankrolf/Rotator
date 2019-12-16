@@ -1,15 +1,16 @@
-from vanilla import (
-    Button, CheckBox, ColorWell,
-    EditText, FloatingWindow, HorizontalLine, TextBox)
 from AppKit import NSColor
-
 from defconAppKit.windows.baseWindow import BaseWindowController
+from fontTools.pens.cocoaPen import CocoaPen
+from lib.UI.integerEditText import NumberEditText
 from mojo.events import addObserver, removeObserver
 from mojo.UI import getDefault, UpdateCurrentGlyphView
-from fontTools.pens.cocoaPen import CocoaPen
+
 from mojo.extensions import (
     getExtensionDefault, setExtensionDefault,
     getExtensionDefaultColor, setExtensionDefaultColor)
+from vanilla import (
+    Button, CheckBox, ColorWell,
+    FloatingWindow, HorizontalLine, TextBox)
 
 rotatorDefaults = 'de.frgr.Rotator'
 
@@ -61,29 +62,38 @@ class Rotator(BaseWindowController):
         self.w.steps_label = TextBox(
             (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'Steps', alignment='right')
-        self.w.steps_text = EditText(
+        self.w.steps_text = NumberEditText(
             (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
             self.steps,
             callback=self.angleCallback,
+            allowFloat=False,
+            allowNegative=False,
+            allowEmpty=False,
+            minimum=1,
+            decimals=0,
             continuous=True)
         textBoxY += (self._row)
 
         self.w.xValue_label = TextBox(
             (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'x', alignment='right')
-        self.w.xValue_text = EditText(
+        self.w.xValue_text = NumberEditText(
             (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
             self.xValue,
-            callback=self.xCallback)
+            callback=self.xCallback,
+            allowFloat=True,
+            decimals=0)
         textBoxY += (self._row)
 
         self.w.yValue_label = TextBox(
             (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'y', alignment='right')
-        self.w.yValue_text = EditText(
+        self.w.yValue_text = NumberEditText(
             (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
             self.yValue,
-            callback=self.yCallback)
+            callback=self.yCallback,
+            allowFloat=True,
+            decimals=0)
         textBoxY += (self._row)
 
         self.w.angle_label = TextBox(
