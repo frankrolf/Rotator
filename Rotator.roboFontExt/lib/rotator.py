@@ -4,15 +4,17 @@ from fontTools.pens.cocoaPen import CocoaPen
 from lib.UI.integerEditText import NumberEditText
 from mojo.events import addObserver, removeObserver
 from mojo.UI import getDefault, UpdateCurrentGlyphView
+from mojo.roboFont import version
 
 from mojo.extensions import (
     getExtensionDefault, setExtensionDefault,
     getExtensionDefaultColor, setExtensionDefaultColor)
 from vanilla import (
-    Button, CheckBox, ColorWell,
+    Button, CheckBox, ColorWell, EditText,
     FloatingWindow, HorizontalLine, TextBox)
 
 rotatorDefaults = 'de.frgr.Rotator'
+rfVersion = float(version.strip('b'))
 
 
 class Rotator(BaseWindowController):
@@ -62,38 +64,61 @@ class Rotator(BaseWindowController):
         self.w.steps_label = TextBox(
             (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'Steps', alignment='right')
-        self.w.steps_text = NumberEditText(
-            (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
-            self.steps,
-            callback=self.angleCallback,
-            allowFloat=False,
-            allowNegative=False,
-            allowEmpty=False,
-            minimum=1,
-            decimals=0,
-            continuous=True)
+        if rfVersion >= 3.4:
+            self.w.steps_text = NumberEditText(
+                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
+                self.steps,
+                callback=self.angleCallback,
+                allowFloat=False,
+                allowNegative=False,
+                allowEmpty=False,
+                minimum=1,
+                decimals=0,
+                continuous=True)
+        else:
+            self.w.steps_text = EditText(
+                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
+                self.steps,
+                callback=self.angleCallback,
+                continuous=True)
+
         textBoxY += (self._row)
 
         self.w.xValue_label = TextBox(
             (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'x', alignment='right')
-        self.w.xValue_text = NumberEditText(
-            (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
-            self.xValue,
-            callback=self.xCallback,
-            allowFloat=True,
-            decimals=0)
+
+        if rfVersion >= 3.4:
+            self.w.xValue_text = NumberEditText(
+                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
+                self.xValue,
+                callback=self.xCallback,
+                allowFloat=True,
+                decimals=0)
+        else:
+            self.w.xValue_text = EditText(
+                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
+                self.xValue,
+                callback=self.xCallback)
+
         textBoxY += (self._row)
 
         self.w.yValue_label = TextBox(
             (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'y', alignment='right')
-        self.w.yValue_text = NumberEditText(
-            (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
-            self.yValue,
-            callback=self.yCallback,
-            allowFloat=True,
-            decimals=0)
+
+        if rfVersion >= 3.4:
+            self.w.yValue_text = NumberEditText(
+                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
+                self.yValue,
+                callback=self.yCallback,
+                allowFloat=True,
+                decimals=0)
+        else:
+            self.w.yValue_text = EditText(
+                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
+                self.yValue,
+                callback=self.yCallback)
         textBoxY += (self._row)
 
         self.w.angle_label = TextBox(
@@ -152,7 +177,7 @@ class Rotator(BaseWindowController):
         pen = CocoaPen(None)
         self.w.color.get().set()
         outline.draw(pen)
-        pen.path.setLineWidth_(0.5)
+        pen.path.setLineWidth_(info['scale'] * .5)
         pen.path.stroke()
 
         # draw crosshair
@@ -167,9 +192,8 @@ class Rotator(BaseWindowController):
         ch_pen.moveTo((center_x, center_y - 10))
         ch_pen.lineTo((center_x, center_y + 10))
         ch_pen.endPath()
-        ch_pen.path.setLineWidth_(0.5)
+        ch_pen.path.setLineWidth_(info['scale'])
         ch_pen.path.stroke()
-
 
     def drawSolidPreview(self, info):
         outline = self.getRotatedGlyph()
