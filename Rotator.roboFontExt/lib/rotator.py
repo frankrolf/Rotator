@@ -193,13 +193,16 @@ class Rotator(Subscriber):
         
         self.w.open()
         self.w.bind("close", self.windowCloseCallback)
-        
-        
 
         self.glyph_editor = self.getGlyphEditor()
         self.bg_container = self.glyph_editor.extensionContainer(
             identifier="rotator.background", 
             location="background", 
+            clear=True
+            )
+        self.pv_container = self.glyph_editor.extensionContainer(
+            identifier="rotator.preview", 
+            location="preview", 
             clear=True
             )
         self.drawRotationPreview()
@@ -257,7 +260,9 @@ class Rotator(Subscriber):
 
     def drawRotationPreview(self):
         self.bg_container.clearSublayers()
-        # draw preview glyph
+        self.pv_container.clearSublayers()
+        
+        # draw outlined glyph
         self.stroked_preview = self.bg_container.appendPathSublayer(
                 strokeColor=self._color,
                 fillColor=None,
@@ -266,8 +271,17 @@ class Rotator(Subscriber):
         outline = self.getRotatedGlyph()
         glyph_path = outline.getRepresentation("merz.CGPath")
         self.stroked_preview.setPath(glyph_path)
+        
+        # draw solid preview
+        defaultPreviewColor = getDefault('glyphViewPreviewFillColor')
+        self.filled_preview = self.pv_container.appendPathSublayer(
+                strokeColor=None,
+                fillColor=defaultPreviewColor,
+                strokeWidth=0
+            )
+        self.filled_preview.setPath(glyph_path)
 
-        # # draw crosshair
+        # draw crosshair
         center_x = self.xValue
         center_y = self.yValue
         self.crosshair = self.bg_container.appendSymbolSublayer(
@@ -277,17 +291,6 @@ class Rotator(Subscriber):
                                 strokeColor = (1,0,0,0.8)
                                 )
             )
-
-    def drawSolidPreview(self, info):
-        # THIS ISN'T UPDATED TO SUBSCRIBER YET
-        outline = self.getRotatedGlyph()
-        pen = CocoaPen(None)
-        outline.draw(pen)
-        defaultPreviewColor = getDefault('glyphViewPreviewFillColor')
-        fillColor = NSColor.colorWithCalibratedRed_green_blue_alpha_(
-            *defaultPreviewColor)
-        fillColor.set()
-        pen.path.fill()
     
     
      # === CALLBACKS === #
