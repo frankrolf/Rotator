@@ -187,11 +187,14 @@ class Rotator(Subscriber):
             callback=self.rotateCallback)
 
         self.w.setDefaultButton(self.w.buttonRotate)
+        
+        w_x, w_y, w_w, w_h = self.w.getPosSize()
+        self.w.resize(w_w, textBoxY, animate=False)
+        
         self.w.open()
         self.w.bind("close", self.windowCloseCallback)
         
-        w_x, w_y, w_w, w_h = self.w.getPosSize()
-        self.w.resize(w_w, textBoxY)
+        
 
         self.glyph_editor = self.getGlyphEditor()
         self.bg_container = self.glyph_editor.extensionContainer(
@@ -201,7 +204,7 @@ class Rotator(Subscriber):
             )
         self.drawRotationPreview()
         
-
+        
     def getRotatedGlyph(self):
         glyph = CurrentGlyph()
         x = int(self.w.xValue_text.get())
