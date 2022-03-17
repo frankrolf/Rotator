@@ -378,6 +378,7 @@ class Rotator(Subscriber):
         
     def windowCloseCallback(self, sender):
         self.bg_container.clearSublayers()
+        self.pv_container.clearSublayers()
         unregisterGlyphEditorSubscriber(Rotator)
         # UpdateCurrentGlyphView()
         self.saveDefaults()
