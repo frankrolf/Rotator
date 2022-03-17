@@ -1,10 +1,8 @@
 from AppKit import NSColor
-from defconAppKit.windows.baseWindow import BaseWindowController
+from lib.tools.misc import NSColorToRgba
 from fontTools.pens.cocoaPen import CocoaPen
 from lib.UI.integerEditText import NumberEditText
-from mojo.events import addObserver, removeObserver
 from mojo.UI import getDefault, UpdateCurrentGlyphView
-from mojo.roboFont import version
 
 from mojo.extensions import (
     getExtensionDefault, setExtensionDefault,
@@ -13,22 +11,52 @@ from vanilla import (
     Button, CheckBox, ColorWell, EditText,
     FloatingWindow, HorizontalLine, TextBox)
 
+import merz
+from merz.tools.drawingTools import NSImageDrawingTools
+from mojo.subscriber import Subscriber, registerGlyphEditorSubscriber, unregisterGlyphEditorSubscriber
+
 rotatorDefaults = 'de.frgr.Rotator'
-rfVersion = float(version.strip('b'))
+
+def rotatorSymbolFactory(
+        position=(0,0),
+        width=20,
+        strokeColor=(1, 0, 0, 1),
+        strokeWidth=1
+        ):
+    bot = NSImageDrawingTools((width, width))
+
+    pen = bot.BezierPath()
+    pen.moveTo((width/2, 0))
+    pen.lineTo((width/2, width))
+    pen.closePath()
+
+    pen2 = bot.BezierPath()
+    pen2.moveTo((0, width/2))
+    pen2.lineTo((width, width/2))
+    pen2.closePath()
+
+    bot.fill(None)
+    bot.stroke(*strokeColor)
+    bot.strokeWidth(strokeWidth)
+    bot.drawPath(pen)
+    bot.drawPath(pen2)
+    # return the image
+    return bot.getImage()
+    
+merz.SymbolImageVendor.registerImageFactory("rotator.crosshair", rotatorSymbolFactory)
 
 
-class Rotator(BaseWindowController):
+class Rotator(Subscriber):
 
     _title = 'Rotator'
-    _width = 180
-    _frame = 8
-    _height = 249
-    _row = 24
-    _padding = 16
-    _gutter = 8
-    _lineHeight = 20
-    _color = NSColor.colorWithCalibratedRed_green_blue_alpha_(
-        0.0, 0.5, 1.0, .8)
+    _width = 178
+    _frame = 10
+    _height = 0 # this will happen dynamically based on textboxY
+    _row = 30
+    _padding = 14
+    _gutter = 6
+    _lineHeight = 24
+    _color = (0.0, 0.5, 1.0, .8)
 
     _columns = 3
     _col_width = (_width - ((_columns - 1) * _gutter)) / _columns
@@ -48,12 +76,15 @@ class Rotator(BaseWindowController):
     rounding = getExtensionDefault(
         '%s.%s' % (rotatorDefaults, 'round'), False)
     angle = 360.0 / steps
+    
 
-    def __init__(self):
+    def build(self):
 
         self.w = FloatingWindow(
             (self._width + 2 * self._frame, self._height),
             self._title)
+        self.w.getNSWindow().setTitlebarHeight_(22)
+        self.w.getNSWindow().setTitlebarAppearsTransparent_(True)
 
         # ----------
         # text boxes
@@ -64,23 +95,26 @@ class Rotator(BaseWindowController):
         self.w.steps_label = TextBox(
             (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'Steps', alignment='right')
-        if rfVersion >= 3.4:
-            self.w.steps_text = NumberEditText(
-                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
-                self.steps,
-                callback=self.angleCallback,
-                allowFloat=False,
-                allowNegative=False,
-                allowEmpty=False,
-                minimum=1,
-                decimals=0,
-                continuous=True)
-        else:
-            self.w.steps_text = EditText(
-                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
-                self.steps,
-                callback=self.angleCallback,
-                continuous=True)
+
+        self.w.steps_text = NumberEditText(
+            (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
+            self.steps,
+            callback=self.angleCallback,
+            allowFloat=False,
+            allowNegative=False,
+            allowEmpty=False,
+            minimum=1,
+            decimals=0,
+            continuous=True)
+        self.w.steps_text.getNSTextField().setFocusRingType_(1)
+                
+        self.w.color = ColorWell(
+            (self._col_2, textBoxY - 1, -self._frame, self._lineHeight - 1),
+            color=getExtensionDefaultColor(
+                '%s.%s' % (rotatorDefaults, 'color'), self._color),
+            callback=self.colorCallback)
+        
+        self._color = NSColorToRgba(self.w.color.get())
 
         textBoxY += (self._row)
 
@@ -88,37 +122,28 @@ class Rotator(BaseWindowController):
             (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'x', alignment='right')
 
-        if rfVersion >= 3.4:
-            self.w.xValue_text = NumberEditText(
-                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
-                self.xValue,
-                callback=self.xCallback,
-                allowFloat=True,
-                decimals=0)
-        else:
-            self.w.xValue_text = EditText(
-                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
-                self.xValue,
-                callback=self.xCallback)
-
+        self.w.xValue_text = NumberEditText(
+            (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
+            self.xValue,
+            callback=self.xCallback,
+            allowFloat=True,
+            decimals=0)
+        self.w.xValue_text.getNSTextField().setFocusRingType_(1)
+        
         textBoxY += (self._row)
 
         self.w.yValue_label = TextBox(
             (self._col_0, textBoxY, self._col_width, self._lineHeight),
             'y', alignment='right')
 
-        if rfVersion >= 3.4:
-            self.w.yValue_text = NumberEditText(
-                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
-                self.yValue,
-                callback=self.yCallback,
-                allowFloat=True,
-                decimals=0)
-        else:
-            self.w.yValue_text = EditText(
-                (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
-                self.yValue,
-                callback=self.yCallback)
+        self.w.yValue_text = NumberEditText(
+            (self._col_1, textBoxY - 2, self._col_width, self._lineHeight),
+            self.yValue,
+            callback=self.yCallback,
+            allowFloat=True,
+            decimals=0)
+        self.w.yValue_text.getNSTextField().setFocusRingType_(1)
+            
         textBoxY += (self._row)
 
         self.w.angle_label = TextBox(
@@ -127,19 +152,21 @@ class Rotator(BaseWindowController):
         self.w.angleResult = TextBox(
             (self._col_1, textBoxY, self._col_width, self._lineHeight),
             u'%s°' % self.niceAngleString(self.angle))
+
         textBoxY += (self._row)
 
-        textBoxY += (self._row * .25)
         self.w.line = HorizontalLine(
             (self._gutter, textBoxY, -self._gutter, 0.5))
-        textBoxY += (self._row * .25)
+
+        textBoxY += (self._row*0.2)
 
         self.w.lock_checkbox = CheckBox(
             (self._col_1 - 25, textBoxY, -self._gutter, self._lineHeight),
             'Lock Center',
             value=self.lock,
             callback=self.lockCallback)
-        textBoxY += (self._row)
+            
+        textBoxY += (self._row*0.8)
 
         self.w.rounding_checkbox = CheckBox(
             (self._col_1 - 25, textBoxY, -self._gutter, self._lineHeight),
@@ -151,51 +178,103 @@ class Rotator(BaseWindowController):
         # -------
         # buttons
         # -------
-
-        self.w.color = ColorWell(
-            (self._col_0, textBoxY, -self._gutter, 2 * self._lineHeight),
-            color=getExtensionDefaultColor(
-                '%s.%s' % (rotatorDefaults, 'color'), self._color),
-            callback=self.colorCallback)
-        textBoxY += (self._row)
-
+        
+        textBoxY += (self._row * 1.2)
+        
         self.w.buttonRotate = Button(
-            (self._col_0, -30, -self._gutter, self._lineHeight),
+            (self._col_0, -self._col_0 - self._lineHeight, -self._col_0, self._lineHeight),
             'Rotate',
             callback=self.rotateCallback)
 
-        self.setUpBaseWindowBehavior()
-        addObserver(self, 'updateOrigin', 'mouseDragged')
-        addObserver(self, 'drawRotationPreview', 'drawBackground')
-        addObserver(self, 'drawSolidPreview', 'drawPreview')
         self.w.setDefaultButton(self.w.buttonRotate)
         self.w.open()
+        w_x, w_y, w_w, w_h = self.w.getPosSize()
+        self.w.resize(w_w, textBoxY)
 
-    def drawRotationPreview(self, info):
+        self.glyph_editor = self.getGlyphEditor()
+        self.bg_container = self.glyph_editor.extensionContainer(
+            identifier="rotator.background", 
+            location="background", 
+            clear=True
+            )
+        self.drawRotationPreview()
+        
+
+    def getRotatedGlyph(self):
+        glyph = CurrentGlyph()
+        x = int(self.w.xValue_text.get())
+        y = int(self.w.yValue_text.get())
+
+        steps = self.steps
+        angle = self.angle
+
+        center = (x, y)
+        rotation_result_glyph = RGlyph()
+        rotation_step_glyph = RGlyph()
+        pen = rotation_step_glyph.getPointPen()
+
+        contourList = []
+        for idx, contour in enumerate(glyph):
+            if contour.selected:
+                contourList.append(idx)
+
+        # if nothing is selected, the whole glyph will be rotated.
+        if len(contourList) == 0:
+            for idx, contour in enumerate(glyph):
+                contourList.append(idx)
+
+        for contour in contourList:
+            glyph[contour].drawPoints(pen)
+
+        # don't draw the original shape again
+        stepCount = steps - 1
+
+        if steps < 2:  # solution/hack for 1-step rotation
+            stepCount = 1
+            angle = 90
+
+        for i in range(stepCount):
+            rotation_step_glyph.rotateBy(angle, center)
+            rotation_result_glyph.appendGlyph(rotation_step_glyph)
+
+        if self.rounding:
+            rotation_result_glyph.round()
+
+        return rotation_result_glyph
+
+    def updateOrigin(self, info):
+        point = info['lowLevelEvents'][0]['point']
+        if not self.lock:
+            self.xValue, self.yValue = int(round(point.x)), int(round(point.y))
+            self.w.xValue_text.set(self.xValue)
+            self.w.yValue_text.set(self.yValue)
+            self.drawRotationPreview()
+
+    def drawRotationPreview(self):
+        self.bg_container.clearSublayers()
         # draw preview glyph
+        self.stroked_preview = self.bg_container.appendPathSublayer(
+                strokeColor=self._color,
+                fillColor=None,
+                strokeWidth=1
+            )
         outline = self.getRotatedGlyph()
-        pen = CocoaPen(None)
-        self.w.color.get().set()
-        outline.draw(pen)
-        pen.path.setLineWidth_(info['scale'] * .5)
-        pen.path.stroke()
+        glyph_path = outline.getRepresentation("merz.CGPath")
+        self.stroked_preview.setPath(glyph_path)
 
-        # draw crosshair
-        ch_pen = CocoaPen(None)
+        # # draw crosshair
         center_x = self.xValue
         center_y = self.yValue
-        strokeColor = NSColor.redColor()
-        strokeColor.set()
-        ch_pen.moveTo((center_x - 10, center_y))
-        ch_pen.lineTo((center_x + 10, center_y))
-        ch_pen.endPath()
-        ch_pen.moveTo((center_x, center_y - 10))
-        ch_pen.lineTo((center_x, center_y + 10))
-        ch_pen.endPath()
-        ch_pen.path.setLineWidth_(info['scale'])
-        ch_pen.path.stroke()
+        self.crosshair = self.bg_container.appendSymbolSublayer(
+            position        = (center_x, center_y),
+            imageSettings   = dict(
+                                name        = "rotator.crosshair",
+                                strokeColor = (1,0,0,0.8)
+                                )
+            )
 
     def drawSolidPreview(self, info):
+        # THIS ISN'T UPDATED TO SUBSCRIBER YET
         outline = self.getRotatedGlyph()
         pen = CocoaPen(None)
         outline.draw(pen)
@@ -204,7 +283,10 @@ class Rotator(BaseWindowController):
             *defaultPreviewColor)
         fillColor.set()
         pen.path.fill()
-
+    
+    
+     # === CALLBACKS === #
+    
     def xCallback(self, sender):
         xValue = sender.get()
         try:
@@ -264,22 +346,9 @@ class Rotator(BaseWindowController):
     def colorCallback(self, sender):
         setExtensionDefaultColor(
             '%s.%s' % (rotatorDefaults, 'color'), sender.get())
-        UpdateCurrentGlyphView()
-
-    def windowCloseCallback(self, sender):
-        removeObserver(self, 'mouseUp')
-        removeObserver(self, 'drawBackground')
-        removeObserver(self, 'drawPreview')
-        UpdateCurrentGlyphView()
-        self.saveDefaults()
-
-    def updateOrigin(self, info):
-        if not self.lock:
-            self.xValue, self.yValue = int(
-                round(info['point'].x)), int(round(info['point'].y))
-            self.w.xValue_text.set(self.xValue)
-            self.w.yValue_text.set(self.yValue)
-
+        self._color = NSColorToRgba(sender.get())
+        self.drawRotationPreview()
+    
     def saveDefaults(self):
         setExtensionDefault(
             '%s.%s' % (rotatorDefaults, 'x'), self.xValue)
@@ -293,60 +362,42 @@ class Rotator(BaseWindowController):
             '%s.%s' % (rotatorDefaults, 'round'), self.rounding)
 
     def rotateCallback(self, sender):
-        glyph = CurrentGlyph()
-        glyph.prepareUndo('Rotator')
-        rotatedGlyph = self.getRotatedGlyph()
-
-        glyph.appendGlyph(rotatedGlyph)
-        glyph.performUndo()
+        with self.g.undo('Rotator'):
+            rotatedGlyph = self.getRotatedGlyph()
+            self.g.appendGlyph(rotatedGlyph)
         self.saveDefaults()
-        glyph.changed()
+        self.g.changed()
+        
+    def windowCloseCallback(self, sender):
+        self.bg_container.clearSublayers()
+        unregisterGlyphEditorSubscriber(Rotator)
+        # UpdateCurrentGlyphView()
+        self.saveDefaults()
+        
+        
+    # === SUBSCRIBERS === #
 
-    def getRotatedGlyph(self):
-        glyph = CurrentGlyph()
-        x = int(self.w.xValue_text.get())
-        y = int(self.w.yValue_text.get())
+    def glyphEditorDidSetGlyph(self, info):
+        self.g = info["glyph"]
+        self.drawRotationPreview() 
+        
+    glyphEditorGlyphDidChangeDelay = 0
+    def glyphEditorGlyphDidChange(self, info):
+        self.g = info["glyph"]
+        self.drawRotationPreview()
+    
+    glyphEditorDidMouseDragDelay = 0
+    def glyphEditorDidMouseDrag(self, info):
+        self.g = info["glyph"]
+        self.updateOrigin(info)
+        
+    def glyphEditorDidMouseUp(self, info):
+        self.g = info["glyph"]
+        self.updateOrigin(info)
 
-        steps = self.steps
-        angle = self.angle
-
-        center = (x, y)
-        rotation_result_glyph = RGlyph()
-        rotation_step_glyph = RGlyph()
-        pen = rotation_step_glyph.getPointPen()
-
-        contourList = []
-        for idx, contour in enumerate(glyph):
-            if contour.selected:
-                contourList.append(idx)
-
-        # if nothing is selected, the whole glyph will be rotated.
-        if len(contourList) == 0:
-            for idx, contour in enumerate(glyph):
-                contourList.append(idx)
-
-        for contour in contourList:
-            glyph[contour].drawPoints(pen)
-
-        # don't draw the original shape again
-        stepCount = steps - 1
-
-        if steps < 2:  # solution/hack for 1-step rotation
-            stepCount = 1
-            angle = 90
-
-        for i in range(stepCount):
-            rotation_step_glyph.rotateBy(angle, center)
-            rotation_result_glyph.appendGlyph(rotation_step_glyph)
-
-        if self.rounding:
-            rotation_result_glyph.round()
-
-        return rotation_result_glyph
-
-
+    
 g = CurrentGlyph()
 if g:
-    OpenWindow(Rotator)
+    registerGlyphEditorSubscriber(Rotator)
 else:
     print('Please open a glyph window.')
