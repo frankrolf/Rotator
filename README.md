@@ -7,6 +7,7 @@ A preview of the rotation is shown in the glyph window; and will dynamically upd
 
 
 ## Versions
+    1.0   2022-03-17  Support for RF4 - Merz + Subscriber
     0.6.0 2019-12-16  Allow dragging, add crosshair cursor
     0.5.3 2019-10-18  Do not limit to a single glyph 
                       (which means the window can stay open while toggling through fonts)
