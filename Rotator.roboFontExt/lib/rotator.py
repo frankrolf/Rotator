@@ -188,6 +188,8 @@ class Rotator(Subscriber):
 
         self.w.setDefaultButton(self.w.buttonRotate)
         self.w.open()
+        self.w.bind("close", self.windowCloseCallback)
+        
         w_x, w_y, w_w, w_h = self.w.getPosSize()
         self.w.resize(w_w, textBoxY)
 
