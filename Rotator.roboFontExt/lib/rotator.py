@@ -2,7 +2,7 @@ from AppKit import NSColor
 from lib.tools.misc import NSColorToRgba
 from fontTools.pens.cocoaPen import CocoaPen
 from lib.UI.integerEditText import NumberEditText
-from mojo.UI import getDefault, UpdateCurrentGlyphView
+from mojo.UI import getDefault, UpdateCurrentGlyphView, CurrentGlyphWindow
 
 from mojo.extensions import (
     getExtensionDefault, setExtensionDefault,
@@ -13,7 +13,7 @@ from vanilla import (
 
 import merz
 from merz.tools.drawingTools import NSImageDrawingTools
-from mojo.subscriber import Subscriber, registerGlyphEditorSubscriber, unregisterGlyphEditorSubscriber
+from mojo.subscriber import Subscriber, registerRoboFontSubscriber, unregisterRoboFontSubscriber
 
 rotatorDefaults = 'de.frgr.Rotator'
 
@@ -79,7 +79,11 @@ class Rotator(Subscriber):
     
 
     def build(self):
-
+        
+        self.glyph_editor = CurrentGlyphWindow()
+        if self.glyph_editor:
+            self.setupContainers()
+        
         self.w = FloatingWindow(
             (self._width + 2 * self._frame, self._height),
             self._title)
@@ -193,18 +197,7 @@ class Rotator(Subscriber):
         
         self.w.open()
         self.w.bind("close", self.windowCloseCallback)
-
-        self.glyph_editor = self.getGlyphEditor()
-        self.bg_container = self.glyph_editor.extensionContainer(
-            identifier="rotator.background", 
-            location="background", 
-            clear=True
-            )
-        self.pv_container = self.glyph_editor.extensionContainer(
-            identifier="rotator.preview", 
-            location="preview", 
-            clear=True
-            )
+        
         self.drawRotationPreview()
         
         
@@ -379,7 +372,7 @@ class Rotator(Subscriber):
     def windowCloseCallback(self, sender):
         self.bg_container.clearSublayers()
         self.pv_container.clearSublayers()
-        unregisterGlyphEditorSubscriber(Rotator)
+        unregisterRoboFontSubscriber(Rotator)
         # UpdateCurrentGlyphView()
         self.saveDefaults()
         
@@ -387,7 +380,13 @@ class Rotator(Subscriber):
     # === SUBSCRIBERS === #
 
     def glyphEditorDidSetGlyph(self, info):
+        self.bg_container.clearSublayers()
+        self.pv_container.clearSublayers()
+        
         self.g = info["glyph"]
+        self.glyph_editor = info["glyphEditor"]
+        
+        self.setupContainers()
         self.drawRotationPreview() 
         
     glyphEditorGlyphDidChangeDelay = 0
@@ -403,10 +402,34 @@ class Rotator(Subscriber):
     def glyphEditorDidMouseUp(self, info):
         self.g = info["glyph"]
         self.updateOrigin(info)
+        
+    def glyphEditorDidOpen(self, info):
+        self.glyph_editor = info["glyphEditor"]
+        self.setupContainers()
+        
+        self.updateOrigin(info)
+        
+    def setupContainers(self):
+        self.bg_container = self.glyph_editor.extensionContainer(
+            identifier="rotator.background", 
+            location="background", 
+            clear=True
+            )
+        self.pv_container = self.glyph_editor.extensionContainer(
+            identifier="rotator.preview", 
+            location="preview", 
+            clear=True
+            )
+            
+    def canSelectWithMarque(self):
+        return False
+        
+    def shouldShowMarqueRect(self):
+        return False
 
     
 g = CurrentGlyph()
 if g:
-    registerGlyphEditorSubscriber(Rotator)
+    registerRoboFontSubscriber(Rotator)
 else:
     print('Please open a glyph window.')
