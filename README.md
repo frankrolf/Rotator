@@ -1,6 +1,6 @@
 # Rotator
 <!-- <img src="rotator.png" width="640" height="440" alt="Rotators gonna Rotate" /> -->
-![](rotator.png)
+<img src="./_images/demo.png">
 
 The rotation center can be set by entering coordinate values, or by dragging the crosshair center across the canvas. 
 A preview of the rotation is shown in the glyph window; and will dynamically update when new values are given, or other outlines are selected. 
