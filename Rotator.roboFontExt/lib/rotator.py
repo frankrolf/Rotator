@@ -14,6 +14,9 @@ from vanilla import (
 import merz
 from merz.tools.drawingTools import NSImageDrawingTools
 from mojo.subscriber import Subscriber, registerRoboFontSubscriber, unregisterRoboFontSubscriber
+from mojo.events import getActiveEventTool
+
+
 
 rotatorDefaults = 'de.frgr.Rotator'
 
@@ -45,6 +48,10 @@ def rotatorSymbolFactory(
     
 merz.SymbolImageVendor.registerImageFactory("rotator.crosshair", rotatorSymbolFactory)
 
+def disable():
+    return False
+def enable():
+    return True    
 
 class Rotator(Subscriber):
 
@@ -77,7 +84,8 @@ class Rotator(Subscriber):
         '%s.%s' % (rotatorDefaults, 'round'), False)
     angle = 360.0 / steps
     
-
+    tool = getActiveEventTool()
+    
     def build(self):
         
         self.glyph_editor = CurrentGlyphWindow()
@@ -310,6 +318,12 @@ class Rotator(Subscriber):
 
     def lockCallback(self, sender):
         self.lock = not self.lock
+        if self.lock:
+            self.tool.shouldShowMarqueRect = enable
+            self.tool.shouldShowSelection = enable
+        else:
+            self.tool.shouldShowMarqueRect = disable
+            self.tool.shouldShowSelection = disable
         self.saveDefaults()
 
     def roundingCallback(self, sender):
@@ -401,6 +415,12 @@ class Rotator(Subscriber):
         
     def glyphEditorDidMouseUp(self, info):
         self.g = info["glyph"]
+        
+        # deselect stuff if locked
+        if not self.lock:
+            self.g.selectedContours = ()
+            self.g.changed()
+            
         self.updateOrigin(info)
         
     def glyphEditorDidOpen(self, info):
@@ -421,11 +441,6 @@ class Rotator(Subscriber):
             clear=True
             )
             
-    def canSelectWithMarque(self):
-        return False
-        
-    def shouldShowMarqueRect(self):
-        return False
 
     
 g = CurrentGlyph()
