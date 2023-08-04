@@ -25,10 +25,14 @@
 	<string></string>
 	<key>name</key>
 	<string>Rotator</string>
+	<key>requiresVersionMajor</key>
+	<string>4</string>
+	<key>requiresVersionMinor</key>
+	<string>0</string>
 	<key>timeStamp</key>
-	<real>1571411592.3902879</real>
+	<real>1691088166</real>
 	<key>version</key>
-	<string>0.5.3</string>
+	<string>1.1</string>
 	<key>repository</key>
 	<string>frankrolf/Rotator</string>
 	<key>extensionPath</key>
