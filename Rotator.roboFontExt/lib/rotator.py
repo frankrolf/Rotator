@@ -213,8 +213,6 @@ class Rotator(Subscriber, ezui.WindowController):
         
 
     def started(self):
-        self.w.open()
-
         self.glyph_editor = CurrentGlyphWindow()
         if self.glyph_editor:
             # Position the window to the top-left of your current glyph editor.
@@ -223,6 +221,7 @@ class Rotator(Subscriber, ezui.WindowController):
             self.w.setPosSize((gwx + 6, gwy + 28, ww, wh))
             self.set_up_containers()
             self.draw_rotation_preview()
+        self.w.open()
 
 
     def destroy(self):
