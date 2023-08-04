@@ -1,12 +1,14 @@
 # Rotator
 <!-- <img src="rotator.png" width="640" height="440" alt="Rotators gonna Rotate" /> -->
-![](rotator.png)
+<img src="./_images/demo.png">
 
 The rotation center can be set by entering coordinate values, or by dragging the crosshair center across the canvas. 
 A preview of the rotation is shown in the glyph window; and will dynamically update when new values are given, or other outlines are selected. 
 
 
 ## Versions
+    1.1   2023-08-03  EZUI, better Merz + Subscriber, click-drag crosshair
+    1.0   2022-03-17  Support for RF4 - Merz + Subscriber
     0.6.0 2019-12-16  Allow dragging, add crosshair cursor
     0.5.3 2019-10-18  Do not limit to a single glyph 
                       (which means the window can stay open while toggling through fonts)
