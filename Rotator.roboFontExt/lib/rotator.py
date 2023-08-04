@@ -91,16 +91,16 @@ class Rotator(Subscriber, ezui.WindowController):
         
         ---
         
-        : Center:
+        : Origin:
         * HorizontalStack  @xyStack
         > [_ _]            @xField
         > [_ _]            @yField
         
-        * HorizontalStack                 @alignmentStack
-        > ({align.vertical.bottom.fill})  @alignBottomButton
-        > ({align.vertical.top.fill})     @alignTopButton
-        > ({align.horizontal.left.fill})  @alignLeftButton
-        > ({align.horizontal.right.fill}) @alignRightButton
+        * HorizontalStack                          @alignmentStack
+        > ({square.grid.3x3.bottommiddle.filled})  @alignBottomButton
+        > ({square.grid.3x3.topmiddle.filled})     @alignTopButton
+        > ({square.grid.3x3.middleleft.filled})    @alignLeftButton
+        > ({square.grid.3x3.middleright.filled})   @alignRightButton
 
         ---
         
@@ -117,7 +117,7 @@ class Rotator(Subscriber, ezui.WindowController):
         """
         
         column_1_width = 50
-        column_2_width = 120
+        column_2_width = 118
         field_width = 40
         descriptionData = dict(
             content=dict(
@@ -128,8 +128,20 @@ class Rotator(Subscriber, ezui.WindowController):
                 distribution="gravity",
                 ),
             alignmentStack=dict(
-                height=14,
+                height=15,
                 distribution="equalSpacing",
+                ),
+            alignBottomButton=dict(
+                symbolConfiguration={'scale':'large', 'weight': 'thin'}
+                ),
+            alignTopButton=dict(
+                symbolConfiguration={'scale':'large', 'weight': 'thin'}
+                ),
+            alignLeftButton=dict(
+                symbolConfiguration={'scale':'large', 'weight': 'thin'}
+                ),
+            alignRightButton=dict(
+                symbolConfiguration={'scale':'large', 'weight': 'thin'}
                 ),
             stepsField=dict(
                 value=5,
@@ -162,7 +174,7 @@ class Rotator(Subscriber, ezui.WindowController):
                 ),
             applyButton=dict(
                 width=120
-                )
+                ),
             )
         self.w = ezui.EZPanel(
             title="Rotator",
@@ -181,7 +193,8 @@ class Rotator(Subscriber, ezui.WindowController):
         self.tool = getActiveEventTool()
         self.steps_text   = self.w.getItem("stepsField")
         self.steps        = self.steps_text.get()
-        self.set_angle(self.steps)
+        if self.steps:
+            self.set_angle(self.steps)
         self.x_value_text = self.w.getItem("xField")
         self.x_value      = self.x_value_text.get()
         self.y_value_text = self.w.getItem("yField")
