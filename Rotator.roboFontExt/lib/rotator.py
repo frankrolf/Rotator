@@ -209,6 +209,7 @@ class Rotator(Subscriber, ezui.WindowController):
         self.w.getNSWindow().setTitlebarAppearsTransparent_(True)
         self.w.setDefaultButton(self.w.getItem("applyButton"))
         self.set_point_dragging(False)
+        self.recently_applied = False
         
 
     def started(self):
@@ -234,6 +235,32 @@ class Rotator(Subscriber, ezui.WindowController):
 
     def save_defaults(self):
         setExtensionDefault(EXTENSION_KEY, self.w.getItemValues())
+        
+        
+    def clear_selection(self):
+        self.g.selectedContours = ()
+        self.g.changed()   
+        
+        
+    def update_x_y(self):
+        self.x_value_text.set(self.x_value)
+        self.y_value_text.set(self.y_value)
+        self.draw_rotation_preview()
+        UpdateCurrentGlyphView()
+        
+        
+    def set_angle(self, steps):
+        if steps == 0:
+            self.angle = 0
+        else:
+            self.angle = 360 / steps
+            
+        # Change the angle readout in the UI
+        ns_stack = self.steps_text.getNSStackView()
+        ns_views = ns_stack.views()
+        ns_text_field = ns_views[-1]
+        ez_label = ns_text_field.vanillaWrapper()
+        ez_label.set(nice_angle_string(self.angle))
 
 
      # === CALLBACKS === #
@@ -289,30 +316,9 @@ class Rotator(Subscriber, ezui.WindowController):
             self.update_x_y()
         
         
-    def update_x_y(self):
-        self.x_value_text.set(self.x_value)
-        self.y_value_text.set(self.y_value)
-        self.draw_rotation_preview()
-        UpdateCurrentGlyphView()
-        
-        
     def roundPointsCheckboxCallback(self, sender):
         self.rounding = sender.get()
         self.save_defaults()
-        
-        
-    def set_angle(self, steps):
-        if steps == 0:
-            self.angle = 0
-        else:
-            self.angle = 360 / steps
-            
-        # Change the angle readout in the UI
-        ns_stack = self.steps_text.getNSStackView()
-        ns_views = ns_stack.views()
-        ns_text_field = ns_views[-1]
-        ez_label = ns_text_field.vanillaWrapper()
-        ez_label.set(nice_angle_string(self.angle))
 
 
     def stepsFieldCallback(self, sender):
@@ -338,6 +344,10 @@ class Rotator(Subscriber, ezui.WindowController):
             self.g.appendGlyph(self.get_rotated_glyph())
         self.save_defaults()
         self.g.changed()
+        # Remove everything but the crosshairs
+        if self.stroked_preview:
+            self.stroked_preview.setPath(None)
+            self.recently_applied = True
 
 
     # === SUBSCRIBERS === #
@@ -365,12 +375,15 @@ class Rotator(Subscriber, ezui.WindowController):
 
     def glyphEditorDidMouseDown(self, info):
         self.down_point = (info['lowLevelEvents'][0]['point'].x, info['lowLevelEvents'][0]['point'].y)
+        self.g = info["glyph"]
         if is_near(self.down_point, (self.x_value, self.y_value)):
             self.set_point_dragging(True)
+            self.clear_selection()
+            self.mouse_update_origin(info)
         else:
             self.set_point_dragging(False)
-        self.g = info["glyph"]
-        self.mouse_update_origin(info)
+            if self.recently_applied == False:
+                self.mouse_update_origin(info)
         
 
     def set_point_dragging(self, value):
@@ -381,6 +394,7 @@ class Rotator(Subscriber, ezui.WindowController):
             # print("self.tool.shouldShowMarqueRect = enable, self.tool.canSelectWithMarque  = enable")        
         else:
             self.point_dragging = True
+            self.recently_applied = False  # You may have hit Apply earlier, but now things can start moving.
             # self.tool.shouldShowMarqueRect = disable
             # self.tool.canSelectWithMarque  = disable
             # print("self.tool.shouldShowMarqueRect = disable, self.tool.canSelectWithMarque  = disable") 
@@ -389,7 +403,13 @@ class Rotator(Subscriber, ezui.WindowController):
     glyphEditorDidMouseDragDelay = 0
     def glyphEditorDidMouseDrag(self, info):
         self.g = info["glyph"]
-        self.mouse_update_origin(info)
+        if self.recently_applied == False:
+            self.mouse_update_origin(info)
+        
+        
+    def glyphEditorDidUndo(self, info):
+        self.recently_applied = False
+        self.draw_rotation_preview()
         
 
     def glyphEditorDidMouseUp(self, info):
@@ -397,12 +417,13 @@ class Rotator(Subscriber, ezui.WindowController):
         
         # Deselect stuff if you just came back from dragging
         if self.point_dragging:
-            self.g.selectedContours = ()
-            self.g.changed()            
-        self.set_point_dragging(False)                        
-        self.mouse_update_origin(info)
+            self.clear_selection()  
+            self.mouse_update_origin(info)      
+        self.set_point_dragging(False)    
+        if self.recently_applied == False:
+            self.mouse_update_origin(info)                    
         
-
+        
     def glyphEditorWillOpen(self, info):
         self.glyph_editor = info["glyphEditor"]
         self.set_up_containers()
