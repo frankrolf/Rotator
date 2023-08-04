@@ -119,6 +119,11 @@ class Rotator(Subscriber, ezui.WindowController):
         column_1_width = 50
         column_2_width = 118
         field_width = 40
+        symbol_config = {
+            'scale'        : 'large', 
+            'weight'       : 'light', 
+            'renderingMode': 'hierarchical',
+            }
         descriptionData = dict(
             content=dict(
                 titleColumnWidth=column_1_width,
@@ -132,16 +137,16 @@ class Rotator(Subscriber, ezui.WindowController):
                 distribution="equalSpacing",
                 ),
             alignBottomButton=dict(
-                symbolConfiguration={'scale':'large', 'weight': 'thin'}
+                symbolConfiguration=symbol_config
                 ),
             alignTopButton=dict(
-                symbolConfiguration={'scale':'large', 'weight': 'thin'}
+                symbolConfiguration=symbol_config
                 ),
             alignLeftButton=dict(
-                symbolConfiguration={'scale':'large', 'weight': 'thin'}
+                symbolConfiguration=symbol_config
                 ),
             alignRightButton=dict(
-                symbolConfiguration={'scale':'large', 'weight': 'thin'}
+                symbolConfiguration=symbol_config
                 ),
             stepsField=dict(
                 value=5,
