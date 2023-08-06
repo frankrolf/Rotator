@@ -352,14 +352,11 @@ class Rotator(Subscriber, ezui.WindowController):
     # === SUBSCRIBERS === #
 
 
-    def glyphEditorWillSetGlyph(self, info):
+    def glyphEditorDidSetGlyph(self, info):
         if self.containers_setup == True:
             self.bg_container.clearSublayers()
             self.pv_container.clearSublayers()
             self.containers_setup = False
-        
-        
-    def glyphEditorDidSetGlyph(self, info):
         self.g = info["glyph"]
         self.glyph_editor = info["glyphEditor"]
         self.set_up_containers()
