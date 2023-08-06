@@ -30,9 +30,9 @@
 	<key>requiresVersionMinor</key>
 	<string>0</string>
 	<key>timeStamp</key>
-	<real>1691088166</real>
+	<real>1691364974</real>
 	<key>version</key>
-	<string>1.1</string>
+	<string>1.1.1</string>
 	<key>repository</key>
 	<string>frankrolf/Rotator</string>
 	<key>extensionPath</key>

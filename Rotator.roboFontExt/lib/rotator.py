@@ -1,24 +1,20 @@
 # menuTitle: Rotator
 
-import ezui
 from AppKit import NSColor
-from lib.tools.misc import NSColorToRgba
 from fontTools.pens.cocoaPen import CocoaPen
 from fontTools.misc.roundTools import otRound
-from lib.UI.integerEditText import NumberEditText
-from mojo.UI import getDefault, UpdateCurrentGlyphView, CurrentGlyphWindow
 
-from mojo.extensions import (
-    getExtensionDefault, setExtensionDefault,
-    getExtensionDefaultColor, setExtensionDefaultColor)
-from vanilla import (
-    Button, CheckBox, ColorWell, EditText,
-    FloatingWindow, HorizontalLine, TextBox)
-
+import ezui
 import merz
 from merz.tools.drawingTools import NSImageDrawingTools
+
+from mojo.roboFont import version
 from mojo.subscriber import Subscriber, registerRoboFontSubscriber
 from mojo.events import getActiveEventTool
+from mojo.extensions import getExtensionDefault, setExtensionDefault
+from mojo.UI import getDefault, UpdateCurrentGlyphView, CurrentGlyphWindow
+if version > "4.4":
+    from mojo.UI import appearanceColorKey
 
 
 EXTENSION_KEY = 'de.frgr.rotator'
@@ -193,6 +189,7 @@ class Rotator(Subscriber, ezui.WindowController):
         except KeyError:
             self.save_defaults()
         
+        self.crosshair_color = (1, 0, 0, 0.8)
         self.containers_setup = False
         self.g = CurrentGlyph()
         self.tool = getActiveEventTool()
@@ -210,6 +207,7 @@ class Rotator(Subscriber, ezui.WindowController):
         self.w.setDefaultButton(self.w.getItem("applyButton"))
         self.set_point_dragging(False)
         self.recently_applied = False
+        self.set_stroke_color()
         
 
     def started(self):
@@ -220,6 +218,7 @@ class Rotator(Subscriber, ezui.WindowController):
             wx,   wy,  ww,  wh = self.w.getPosSize()
             self.w.setPosSize((gwx + 6, gwy + 28, ww, wh))
             self.set_up_containers()
+            self.set_preview_color()
             self.draw_rotation_preview()
         self.w.open()
 
@@ -260,6 +259,20 @@ class Rotator(Subscriber, ezui.WindowController):
         ns_text_field = ns_views[-1]
         ez_label = ns_text_field.vanillaWrapper()
         ez_label.set(nice_angle_string(self.angle))
+        
+        
+    def set_preview_color(self):
+        if version > "4.4":
+            self.preview_color = getDefault(appearanceColorKey("glyphViewPreviewFillColor"))
+        else:
+            self.preview_color = getDefault("glyphViewPreviewFillColor")
+
+
+    def set_stroke_color(self):
+        try:
+            self.stroke_color = self.w.getItem('strokeColorWell').get()
+        except:
+            self.stroke_color = (0, 0, 1, 1)
 
 
      # === CALLBACKS === #
@@ -335,6 +348,7 @@ class Rotator(Subscriber, ezui.WindowController):
 
 
     def strokeColorWellCallback(self, sender):
+        self.set_stroke_color()
         self.draw_rotation_preview()
 
 
@@ -429,6 +443,15 @@ class Rotator(Subscriber, ezui.WindowController):
         self.draw_rotation_preview()
 
 
+    # Change the preview layer color if the app switches to dark mode.
+    def roboFontAppearanceChanged(self, info):
+        self.set_preview_color()
+
+
+    def roboFontDidChangePreferences(self, info):
+        self.set_preview_color()
+
+
     # === MERZ === #
 
 
@@ -461,7 +484,7 @@ class Rotator(Subscriber, ezui.WindowController):
         
         # Draw outlined glyph
         self.stroked_preview = self.bg_container.appendPathSublayer(
-                strokeColor=self.w.getItem('strokeColorWell').get(),
+                strokeColor=self.stroke_color,
                 fillColor=None,
                 strokeWidth=1
             )
@@ -470,10 +493,9 @@ class Rotator(Subscriber, ezui.WindowController):
         self.stroked_preview.setPath(glyph_path)
         
         # Draw solid preview
-        default_preview_color = getDefault('glyphViewPreviewFillColor')
         self.filled_preview = self.pv_container.appendPathSublayer(
                 strokeColor=None,
-                fillColor=default_preview_color,
+                fillColor=self.preview_color,
                 strokeWidth=0
             )
         self.filled_preview.setPath(glyph_path)
@@ -485,14 +507,14 @@ class Rotator(Subscriber, ezui.WindowController):
             position        = (center_x, center_y),
             imageSettings   = dict(
                                 name        = "rotator.circleCrosshair",
-                                strokeColor = (1,0,0,0.8)
+                                strokeColor = self.crosshair_color
                                 )
             )
-        self.previewCrosshair = self.pv_container.appendSymbolSublayer(
+        self.preview_crosshair = self.pv_container.appendSymbolSublayer(
             position        = (center_x, center_y),
             imageSettings   = dict(
                                 name        = "rotator.circleCrosshair",
-                                strokeColor = (1,0,0,0.8)
+                                strokeColor = self.crosshair_color
                                 )
             )
 
@@ -537,5 +559,7 @@ class Rotator(Subscriber, ezui.WindowController):
             rotation_result_glyph.round()
 
         return rotation_result_glyph
+
+
             
 registerRoboFontSubscriber(Rotator)
