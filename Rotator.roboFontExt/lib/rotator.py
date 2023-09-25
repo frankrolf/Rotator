@@ -377,8 +377,7 @@ class Rotator(Subscriber, ezui.WindowController):
         self.draw_rotation_preview()
         
 
-    glyphEditorGlyphDidChangeDelay = 0
-    def currentGlyphDidChangeContours(self, info):
+    def glyphEditorDidKeyDown(self, info):
         self.g = info["glyph"]
         self.draw_rotation_preview()
         
